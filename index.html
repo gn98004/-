@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <title>小口袋 XiaoPocket - Demo V2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+      font-size: 16px;
+    }
+    img {
+      max-width: 100%;
+      display: block;
+    }
+    button {
+      font-family: inherit;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 52px;
+      padding: 0 16px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+    .top-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .top-right {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      background: #f3f4f6;
+      padding-bottom: 56px;
+    }
+
+    .page {
+      display: none;
+      padding: 8px 12px 16px;
+    }
+    .page.active {
+      display: block;
+    }
+
+    .tab-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 20;
+      display: flex;
+      height: 56px;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #6b7280;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tab-item span.icon {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+    .tab-item.active {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 8px 0;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.03);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .post-user {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .post-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .post-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 4px 0 6px;
+    }
+    .post-text {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .post-actions-left,
+    .post-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .hint-banner {
+      font-size: 11px;
+      color: #6b7280;
+      background: #fff7ed;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    .hint-banner span {
+      color: #f97316;
+      font-weight: 600;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      flex: 1;
+      padding-left: 6px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fef2f2;
+      color: #b91c1c;
+      cursor: pointer;
+    }
+    .chip.hot {
+      background: #fee2e2;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-label {
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #374151;
+      font-weight: 500;
+    }
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.15);
+    }
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .upload-box {
+      border-radius: 10px;
+      border: 1px dashed #d1d5db;
+      padding: 10px;
+      background: #f9fafb;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      cursor: pointer;
+      position: relative;
+    }
+    .upload-box input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .upload-preview-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+    .upload-preview-grid img {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .upload-preview-empty-hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .layout-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .layout-option {
+      flex: 1 1 calc(50% - 6px);
+      min-width: calc(50% - 6px);
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 6px 8px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      cursor: pointer;
+      background: #f9fafb;
+    }
+    .layout-option-title {
+      font-weight: 600;
+      font-size: 11px;
+    }
+    .layout-option-desc {
+      font-size: 10px;
+      color: #9ca3af;
+    }
+    .layout-option.active {
+      border-color: #ef4444;
+      background: #fef2f2;
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.15);
+    }
+
+    .btn-primary {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 0;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn-primary:active {
+      opacity: 0.9;
+    }
+    .helper-text {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .profile-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 26px;
+    }
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .profile-meta {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .profile-stats {
+      display: flex;
+      gap: 18px;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .stat-label {
+      color: #9ca3af;
+    }
+    .stat-value {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 10px 0 4px;
+    }
+    .empty-hint {
+      font-size: 12px;
+      color: #9ca3af;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    /* ===== 多種排版樣式 ===== */
+
+    .layout-full-image img {
+      width: 100%;
+      border-radius: 12px;
+      object-fit: cover;
+      max-height: 380px;
+    }
+
+    .layout-grid3x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .layout-grid3x3 img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+    }
+
+    .layout-two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .layout-two-column img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+
+    .layout-overlay {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .layout-overlay img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+    }
+    .layout-overlay-title {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 12px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.68), rgba(0,0,0,0));
+      color: #f9fafb;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .layout-gradient-card {
+      border-radius: 16px;
+      padding: 10px;
+      background: radial-gradient(circle at top left, #fed7aa, #fecaca, #fee2e2);
+      position: relative;
+      overflow: hidden;
+    }
+    .layout-gradient-card-inner {
+      border-radius: 14px;
+      background: #ffffffee;
+      padding: 10px;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.12);
+    }
+    .layout-gradient-card-inner img {
+      border-radius: 12px;
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+    }
+
+    .layout-magazine {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f9fafb;
+      padding: 8px;
+    }
+    .layout-magazine-left img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+    .layout-magazine-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+    .layout-magazine-tagpill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 10px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    .layout-magazine-subtitle {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .layout-magazine-desc {
+      color: #6b7280;
+      line-height: 1.4;
+    }
+    .layout-magazine-footer {
+      color: #9ca3af;
+      font-size: 10px;
+    }
+
+    .layout-diagonal {
+      position: relative;
+      height: 260px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #111827;
+    }
+    .layout-diagonal img.main {
+      position: absolute;
+      inset: 12% 6% 8% 8%;
+      width: auto;
+      height: auto;
+      max-width: 90%;
+      max-height: 80%;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.6);
+      transform: rotate(-3deg);
+    }
+    .layout-diagonal img.second {
+      position: absolute;
+      inset: 8% 8% 18% 26%;
+      width: auto;
+      height: auto;
+      max-width: 70%;
+      max-height: 70%;
+      object-fit: cover;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transform: rotate(5deg);
+      opacity: 0.92;
+    }
+
+    .layout-video-cover {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .layout-video-cover img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.95);
+    }
+    .layout-video-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: rgba(15,23,42,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.6);
+    }
+    .layout-video-play::before {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid #f9fafb;
+      margin-left: 4px;
+    }
+
+    .layout-notebook {
+      position: relative;
+      padding: 14px 10px 12px;
+      border-radius: 16px;
+      background: #fef9c3;
+      box-shadow: 0 10px 30px rgba(148, 163, 184, 0.4);
+      overflow: hidden;
+    }
+    .layout-notebook::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 18px;
+      height: 1px;
+      background-image: linear-gradient(to right, rgba(248,250,252,0.7) 0 50%, transparent 50% 100%);
+      background-size: 10px 1px;
+    }
+    .layout-notebook-tape {
+      position: absolute;
+      top: 6px;
+      left: 18%;
+      width: 90px;
+      height: 18px;
+      background: #fee2e2;
+      opacity: 0.85;
+      transform: rotate(-4deg);
+      border-radius: 4px;
+    }
+    .layout-notebook-tape:nth-of-type(2) {
+      left: auto;
+      right: 12%;
+      top: auto;
+      bottom: 8px;
+      width: 70px;
+      background: #bfdbfe;
+      transform: rotate(3deg);
+    }
+    .layout-notebook-inner {
+      position: relative;
+      border-radius: 12px;
+      background: #fefce8;
+      padding: 8px;
+      margin-top: 10px;
+    }
+    .layout-notebook-inner img {
+      width: 100%;
+      border-radius: 10px;
+      max-height: 240px;
+      object-fit: cover;
+    }
+    .layout-notebook-stickers {
+      position: absolute;
+      top: -6px;
+      right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 14px;
+    }
+    .layout-notebook-sticker-chip {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #fff7ed;
+      border: 1px solid rgba(248, 148, 128, 0.45);
+      font-size: 10px;
+      color: #ea580c;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .layout-carousel {
+      border-radius: 14px;
+      background: #0f172a;
+      padding: 10px 0 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .layout-carousel-track {
+      display: flex;
+      gap: 8px;
+      padding: 0 10px 4px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    .layout-carousel-track::-webkit-scrollbar {
+      height: 4px;
+    }
+    .layout-carousel-track::-webkit-scrollbar-thumb {
+      background: rgba(148,163,184,0.7);
+      border-radius: 999px;
+    }
+    .layout-carousel-item {
+      min-width: 72%;
+      scroll-snap-align: center;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.7);
+    }
+    .layout-carousel-item img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+    }
+    .layout-carousel-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .layout-carousel-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.6);
+    }
+    .layout-carousel-dot.active {
+      width: 10px;
+      background: #e5e7eb;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        background: radial-gradient(circle at top, #fee2e2, #e5e7eb 45%, #f3f4f6);
+      }
+      .app-shell {
+        margin-top: 16px;
+        margin-bottom: 16px;
+        border-radius: 20px;
+        box-shadow: 0 18px 55px rgba(15,23,42,0.18);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="top-bar">
+    <div>
+      <div class="top-title">小口袋</div>
+      <div class="top-sub">XiaoPocket Demo V2</div>
+    </div>
+    <div class="top-right">多版型排版 · 前端展示</div>
+  </header>
+
+  <main class="main">
+    <section id="page-home" class="page active">
+      <div class="hint-banner">
+        這是 <span>小口袋</span> Demo V2：新增 <span>10 種圖片排版樣式</span>。所有資料僅存在本機瀏覽器，不會上傳伺服器。
+      </div>
+      <div id="feed-list"></div>
+    </section>
+
+    <section id="page-discover" class="page">
+      <div class="search-bar">
+        <span style="font-size:16px;">🔍</span>
+        <input id="search-input" placeholder="搜尋筆記、主題或標籤…" />
+      </div>
+      <div class="chip-row">
+        <div class="chip hot" data-tag="美食"># 美食日常</div>
+        <div class="chip" data-tag="旅遊"># 週末小旅行</div>
+        <div class="chip" data-tag="穿搭"># 今日穿搭</div>
+        <div class="chip" data-tag="3C"># 3C 開箱</div>
+        <div class="chip" data-tag="生活"># 生活碎片</div>
+      </div>
+      <div class="section-title">猜你想看</div>
+      <div id="discover-list"></div>
+    </section>
+
+    <section id="page-post" class="page">
+      <div class="card">
+        <div class="form-group">
+          <div class="form-label">標題</div>
+          <input id="post-title" class="form-input" placeholder="今天的小發現…" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">內容</div>
+          <textarea id="post-content" class="form-textarea" placeholder="分享你的心得、故事或小筆記…"></textarea>
+          <div class="helper-text">文字將以卡片方式顯示在首頁，適合短筆記、心得與日常紀錄。</div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">標籤（以逗號分隔）</div>
+          <input id="post-tags" class="form-input" placeholder="例如：美食, 旅遊, 今日穿搭" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">圖片（可多張，用來套各種排版）</div>
+          <label class="upload-box">
+            點擊上傳 1～9 張圖片
+            <input id="post-images" type="file" accept="image/*" multiple />
+          </label>
+          <div id="upload-preview" class="upload-preview-grid"></div>
+          <div id="upload-preview-empty" class="upload-preview-empty-hint">尚未選擇圖片，可先選 1 張測試，也可以一次選多張做九宮格、拼貼或輪播。</div>
+          <div class="helper-text">圖片僅暫存在本機記憶體，重新整理頁面後 Demo 資料會消失。</div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">排版樣式（10 種美圖版型）</div>
+          <div class="layout-selector" id="layout-selector">
+            <div class="layout-option active" data-layout="full-image">
+              <div class="layout-option-title">1. 大圖滿版</div>
+              <div class="layout-option-desc">單張主圖，適合旅遊、美食、大場景。</div>
+            </div>
+            <div class="layout-option" data-layout="grid-3x3">
+              <div class="layout-option-title">2. 九宮格</div>
+              <div class="layout-option-desc">最多 9 張圖，小物、生活碎片總整理。</div>
+            </div>
+            <div class="layout-option" data-layout="two-column">
+              <div class="layout-option-title">3. 雙圖並排</div>
+              <div class="layout-option-desc">前後對比、穿搭 / 風景二選一。</div>
+            </div>
+            <div class="layout-option" data-layout="overlay">
+              <div class="layout-option-title">4. 圖上文字</div>
+              <div class="layout-option-desc">標題壓在圖片上，像封面卡。</div>
+            </div>
+            <div class="layout-option" data-layout="gradient-card">
+              <div class="layout-option-title">5. 漸層卡片</div>
+              <div class="layout-option-desc">漸層背景＋主圖，產品 / 小物很適合。</div>
+            </div>
+            <div class="layout-option" data-layout="magazine">
+              <div class="layout-option-title">6. 雜誌風</div>
+              <div class="layout-option-desc">左圖右文，像雜誌專欄頁。</div>
+            </div>
+            <div class="layout-option" data-layout="diagonal">
+              <div class="layout-option-title">7. 交叉拼貼</div>
+              <div class="layout-option-desc">兩張斜拼，視覺層次感強。</div>
+            </div>
+            <div class="layout-option" data-layout="video-cover">
+              <div class="layout-option-title">8. 影片封面風</div>
+              <div class="layout-option-desc">中央播放鍵樣式，超像 vlog 封面。</div>
+            </div>
+            <div class="layout-option" data-layout="notebook">
+              <div class="layout-option-title">9. 手帳風＋貼紙</div>
+              <div class="layout-option-desc">紙膠帶＋貼紙風格，更有日記感。</div>
+            </div>
+            <div class="layout-option" data-layout="carousel">
+              <div class="layout-option-title">10. 輪播相簿</div>
+              <div class="layout-option-desc">左右滑看多張照片，適合旅程記錄。</div>
+            </div>
+          </div>
+          <div class="helper-text">不同排版需的圖片數量不一樣，若圖片不足，會自動用可用的張數去排版，不會壞版。</div>
+        </div>
+
+        <button id="post-submit" class="btn-primary">發佈到小口袋</button>
+      </div>
+    </section>
+
+    <section id="page-notify" class="page">
+      <div class="card">
+        <div class="section-title">系統提醒</div>
+        <div class="empty-hint">
+          目前尚未接上後端，這裡暫時作為視覺展示。<br/>
+          未來可放入：按讚 / 留言 / 追蹤提醒、小口袋活動推播等。
+        </div>
+      </div>
+    </section>
+
+    <section id="page-profile" class="page">
+      <div class="card">
+        <div class="profile-header">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name">Demo 使用者</div>
+            <div class="profile-meta">暫時使用假資料 · 尚未接會員系統</div>
+            <div class="profile-stats">
+              <div>
+                <div class="stat-label">我的筆記</div>
+                <div class="stat-value" id="stat-post-count">0</div>
+              </div>
+              <div>
+                <div class="stat-label">收藏</div>
+                <div class="stat-value">0</div>
+              </div>
+              <div>
+                <div class="stat-label">追蹤中</div>
+                <div class="stat-value">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hint-banner">
+          未來可以在這裡接：登入 / 註冊、編輯個人資料、管理草稿、通知設定等。<br/>
+          目前只展示「我的筆記」列表和統計數字。
+        </div>
+      </div>
+
+      <div class="section-title">我的筆記</div>
+      <div id="my-post-list"></div>
+      <div id="my-post-empty" class="empty-hint">尚未發佈任何筆記，先去「＋發佈」分享一則吧！</div>
+    </section>
+  </main>
+
+  <nav class="tab-bar">
+    <div class="tab-item active" data-target="home">
+      <span class="icon">🏠</span>
+      <span>首頁</span>
+    </div>
+    <div class="tab-item" data-target="discover">
+      <span class="icon">🔎</span>
+      <span>探索</span>
+    </div>
+    <div class="tab-item" data-target="post">
+      <span class="icon">➕</span>
+      <span>發佈</span>
+    </div>
+    <div class="tab-item" data-target="notify">
+      <span class="icon">🔔</span>
+      <span>通知</span>
+    </div>
+    <div class="tab-item" data-target="profile">
+      <span class="icon">👤</span>
+      <span>我的</span>
+    </div>
+  </nav>
+</div>
+
+<script>
+  const demoPosts = [
+    {
+      id: "demo-1",
+      user: "海邊散步的人",
+      avatar: "海",
+      title: "週末一個人去海邊散散心",
+      content: "沒有特別的安排，就帶著耳機、相機和一本書，沿著海邊慢慢走。發現其實放空也是一種很重要的行程。",
+      tags: ["旅遊", "生活", "心情"],
+      images: [
+        "https://images.pexels.com/photos/2404370/pexels-photo-2404370.jpeg?auto=compress&cs=tinysrgb&w=800"
+      ],
+      layout: "full-image",
+      likes: 23,
+      comments: 5,
+      time: "2 小時前"
+    },
+    {
+      id: "demo-2",
+      user: "下班想躺著",
+      avatar: "班",
+      title: "懶人也能做的超簡單一鍋料理",
+      content: "下班真的不想開火太久，就把蔬菜、菇類、雞肉全部丟進鍋裡，調味後一起煮。洗碗也只要洗一鍋，超爽。",
+      tags: ["美食", "懶人料理"],
+      images: [
+        "https://images.pexels.com/photos/5718025/pexels-photo-5718025.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/5718023/pexels-photo-5718023.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/5717994/pexels-photo-5717994.jpeg?auto=compress&cs=tinysrgb&w=800"
+      ],
+      layout: "grid-3x3",
+      likes: 41,
+      comments: 12,
+      time: "昨天"
+    },
+    {
+      id: "demo-3",
+      user: "街口穿搭控",
+      avatar: "搭",
+      title: "今天試著換了一種顏色的穿搭",
+      content: "一直都很害怕穿亮色，但今天硬著頭皮買了一件亮橘色外套。結果意外的好看，走在路上心情都變好了。",
+      tags: ["穿搭", "生活"],
+      images: [
+        "https://images.pexels.com/photos/7671166/pexels-photo-7671166.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/7671168/pexels-photo-7671168.jpeg?auto=compress&cs=tinysrgb&w=800"
+      ],
+      layout: "magazine",
+      likes: 67,
+      comments: 19,
+      time: "3 天前"
+    }
+  ];
+
+  let userPosts = [];
+  let allPosts = [...demoPosts];
+
+  const pages = {
+    home: document.getElementById("page-home"),
+    discover: document.getElementById("page-discover"),
+    post: document.getElementById("page-post"),
+    notify: document.getElementById("page-notify"),
+    profile: document.getElementById("page-profile")
+  };
+
+  const tabItems = document.querySelectorAll(".tab-item");
+  const feedList = document.getElementById("feed-list");
+  const discoverList = document.getElementById("discover-list");
+  const myPostList = document.getElementById("my-post-list");
+  const myPostEmpty = document.getElementById("my-post-empty");
+  const statPostCount = document.getElementById("stat-post-count");
+
+  const postTitleInput = document.getElementById("post-title");
+  const postContentInput = document.getElementById("post-content");
+  const postTagsInput = document.getElementById("post-tags");
+  const postImagesInput = document.getElementById("post-images");
+  const uploadPreview = document.getElementById("upload-preview");
+  const uploadPreviewEmpty = document.getElementById("upload-preview-empty");
+  const postSubmitBtn = document.getElementById("post-submit");
+  const layoutSelector = document.getElementById("layout-selector");
+  const searchInput = document.getElementById("search-input");
+
+  let selectedImages = [];
+  let selectedLayout = "full-image";
+
+  function switchPage(target) {
+    Object.values(pages).forEach(p => p.classList.remove("active"));
+    tabItems.forEach(t => t.classList.remove("active"));
+
+    const page = pages[target];
+    if (page) page.classList.add("active");
+
+    tabItems.forEach(t => {
+      if (t.dataset.target === target) t.classList.add("active");
+    });
+
+    if (target === "home") {
+      renderFeed(allPosts);
+    } else if (target === "discover") {
+      renderDiscover(allPosts);
+    } else if (target === "profile") {
+      renderMyPosts();
+    }
+  }
+
+  tabItems.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.target;
+      switchPage(target);
+    });
+  });
+
+  function createLayoutContent(post) {
+    const images = (post.images && post.images.length ? post.images : (post.image ? [post.image] : []));
+    const layout = post.layout || "full-image";
+    const img1 = images[0];
+    const img2 = images[1];
+    const img3 = images[2];
+
+    if (!images.length) {
+      return "";
+    }
+
+    switch (layout) {
+      case "grid-3x3": {
+        let itemsHtml = "";
+        images.slice(0, 9).forEach(src => {
+          itemsHtml += `<div><img src="${src}" loading="lazy" alt="image"/></div>`;
+        });
+        return `<div class="layout-grid3x3">${itemsHtml}</div>`;
+      }
+      case "two-column": {
+        let colHtml = "";
+        images.slice(0, 2).forEach(src => {
+          colHtml += `<div><img src="${src}" loading="lazy" alt="image"/></div>`;
+        });
+        return `<div class="layout-two-column">${colHtml}</div>`;
+      }
+      case "overlay": {
+        return `
+          <div class="layout-overlay">
+            <img src="${img1}" loading="lazy" alt="image"/>
+            <div class="layout-overlay-title">${post.title || ""}</div>
+          </div>
+        `;
+      }
+      case "gradient-card": {
+        return `
+          <div class="layout-gradient-card">
+            <div class="layout-gradient-card-inner">
+              <img src="${img1}" loading="lazy" alt="image"/>
+            </div>
+          </div>
+        `;
+      }
+      case "magazine": {
+        const tagChips = (post.tags || []).slice(0, 3).map(t => `<span class="layout-magazine-tagpill"># ${t}</span>`).join("");
+        return `
+          <div class="layout-magazine">
+            <div class="layout-magazine-left">
+              <img src="${img1}" loading="lazy" alt="image"/>
+            </div>
+            <div class="layout-magazine-right">
+              <div>
+                <div class="layout-magazine-subtitle">${post.title || ""}</div>
+                <div class="layout-magazine-desc">${(post.content || "").slice(0, 60)}${post.content && post.content.length > 60 ? "…" : ""}</div>
+              </div>
+              <div>
+                <div>${tagChips}</div>
+                <div class="layout-magazine-footer">小口袋 · Magazine Layout</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      case "diagonal": {
+        return `
+          <div class="layout-diagonal">
+            <img src="${img1}" class="main" loading="lazy" alt="image"/>
+            ${img2 ? `<img src="${img2}" class="second" loading="lazy" alt="image"/>` : ""}
+          </div>
+        `;
+      }
+      case "video-cover": {
+        return `
+          <div class="layout-video-cover">
+            <img src="${img1}" loading="lazy" alt="image"/>
+            <div class="layout-video-play"></div>
+          </div>
+        `;
+      }
+      case "notebook": {
+        const mainTag = (post.tags && post.tags[0]) || "Today";
+        const secondTag = (post.tags && post.tags[1]) || "Mood";
+        return `
+          <div class="layout-notebook">
+            <div class="layout-notebook-tape"></div>
+            <div class="layout-notebook-tape"></div>
+            <div class="layout-notebook-inner">
+              <div class="layout-notebook-stickers">
+                <div class="layout-notebook-sticker-chip">📌 ${mainTag}</div>
+                <div class="layout-notebook-sticker-chip">⭐ ${secondTag}</div>
+              </div>
+              <img src="${img1}" loading="lazy" alt="image"/>
+            </div>
+          </div>
+        `;
+      }
+      case "carousel": {
+        let itemsHtml = "";
+        const imgs = images.slice(0, 9);
+        imgs.forEach(src => {
+          itemsHtml += `
+            <div class="layout-carousel-item">
+              <img src="${src}" loading="lazy" alt="image"/>
+            </div>
+          `;
+        });
+        let dotsHtml = "";
+        imgs.forEach((_, idx) => {
+          dotsHtml += `<div class="layout-carousel-dot ${idx === 0 ? "active" : ""}"></div>`;
+        });
+        return `
+          <div class="layout-carousel">
+            <div class="layout-carousel-track">
+              ${itemsHtml}
+            </div>
+            <div class="layout-carousel-dots">
+              ${dotsHtml}
+            </div>
+          </div>
+        `;
+      }
+      case "full-image":
+      default: {
+        return `
+          <div class="layout-full-image">
+            <img src="${img1}" loading="lazy" alt="image"/>
+          </div>
+        `;
+      }
+    }
+  }
+
+  function createPostCard(post) {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const tagsHtml = (post.tags || [])
+      .map(tag => `<span class="tag"># ${tag}</span>`)
+      .join("");
+
+    const layoutHtml = createLayoutContent(post);
+
+    card.innerHTML = `
+      <div class="post-header">
+        <div class="avatar">${(post.avatar || "口").slice(0, 1)}</div>
+        <div>
+          <div class="post-user">${post.user || "小口袋用戶"}</div>
+          <div class="post-meta">${post.time || "剛剛 · 來自 小口袋 Demo"}</div>
+        </div>
+      </div>
+      <div class="post-title">${post.title || "未命名標題"}</div>
+      <div class="post-text">${post.content || ""}</div>
+      ${layoutHtml}
+      <div class="post-tags">${tagsHtml}</div>
+      <div class="post-actions">
+        <div class="post-actions-left">
+          <div class="icon-btn">❤️ <span>${post.likes ?? 0}</span></div>
+          <div class="icon-btn">💬 <span>${post.comments ?? 0}</span></div>
+        </div>
+        <div class="post-actions-right">
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+    `;
+    return card;
+  }
+
+  function renderFeed(posts) {
+    feedList.innerHTML = "";
+    if (!posts.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-hint";
+      empty.innerHTML = "目前還沒有內容，先去「＋發佈」分享第一則小口袋筆記吧！";
+      feedList.appendChild(empty);
+      return;
+    }
+    posts.forEach(p => {
+      const card = createPostCard(p);
+      feedList.appendChild(card);
+    });
+  }
+
+  function renderDiscover(posts) {
+    discoverList.innerHTML = "";
+    if (!posts.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-hint";
+      empty.innerHTML = "暫時沒有找到相關內容，可以試試其他關鍵字或標籤。";
+      discoverList.appendChild(empty);
+      return;
+    }
+    posts.forEach(p => {
+      const card = createPostCard(p);
+      discoverList.appendChild(card);
+    });
+  }
+
+  function renderMyPosts() {
+    myPostList.innerHTML = "";
+    if (!userPosts.length) {
+      myPostEmpty.style.display = "block";
+    } else {
+      myPostEmpty.style.display = "none";
+      userPosts.slice().reverse().forEach(p => {
+        const card = createPostCard(p);
+        myPostList.appendChild(card);
+      });
+    }
+    statPostCount.textContent = userPosts.length.toString();
+  }
+
+  postImagesInput.addEventListener("change", function (e) {
+    const files = Array.from(e.target.files || []);
+    selectedImages = [];
+    uploadPreview.innerHTML = "";
+    if (!files.length) {
+      uploadPreviewEmpty.style.display = "block";
+      return;
+    }
+    const limit = 9;
+    const sliced = files.slice(0, limit);
+    let loadedCount = 0;
+
+    sliced.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        const dataUrl = evt.target.result;
+        selectedImages.push(dataUrl);
+        const img = document.createElement("img");
+        img.src = dataUrl;
+        uploadPreview.appendChild(img);
+        loadedCount++;
+        if (loadedCount > 0) {
+          uploadPreviewEmpty.style.display = "none";
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  layoutSelector.addEventListener("click", function (e) {
+    const option = e.target.closest(".layout-option");
+    if (!option) return;
+    const layout = option.dataset.layout;
+    if (!layout) return;
+    selectedLayout = layout;
+    document.querySelectorAll(".layout-option").forEach(el => el.classList.remove("active"));
+    option.classList.add("active");
+  });
+
+  postSubmitBtn.addEventListener("click", function () {
+    const title = postTitleInput.value.trim();
+    const content = postContentInput.value.trim();
+    const rawTags = postTagsInput.value.trim();
+
+    if (!title && !content && !selectedImages.length) {
+      alert("至少輸入標題或內容，或上傳一張圖片再發佈喔。");
+      return;
+    }
+
+    const tags = rawTags
+      ? rawTags.split(",").map(t => t.trim()).filter(Boolean)
+      : [];
+
+    const newPost = {
+      id: "user-" + Date.now(),
+      user: "Demo 使用者",
+      avatar: "D",
+      title: title || "未命名標題",
+      content,
+      tags,
+      images: selectedImages.slice(),
+      layout: selectedLayout,
+      likes: 0,
+      comments: 0,
+      time: "剛剛"
+    };
+
+    userPosts.push(newPost);
+    allPosts.unshift(newPost);
+
+    postTitleInput.value = "";
+    postContentInput.value = "";
+    postTagsInput.value = "";
+    postImagesInput.value = "";
+    selectedImages = [];
+    uploadPreview.innerHTML = "";
+    uploadPreviewEmpty.style.display = "block";
+    selectedLayout = "full-image";
+    document.querySelectorAll(".layout-option").forEach(el => {
+      el.classList.toggle("active", el.dataset.layout === "full-image");
+    });
+
+    alert("已發佈到小口袋（僅本機 Demo）");
+
+    renderFeed(allPosts);
+    renderMyPosts();
+    switchPage("home");
+  });
+
+  function filterPostsByKeyword(keyword) {
+    if (!keyword) return allPosts;
+    const lower = keyword.toLowerCase();
+    return allPosts.filter(p => {
+      const text = (p.title + " " + p.content + " " + (p.tags || []).join(" ")).toLowerCase();
+      return text.includes(lower);
+    });
+  }
+
+  searchInput.addEventListener("input", function (e) {
+    const keyword = e.target.value.trim();
+    const result = filterPostsByKeyword(keyword);
+    renderDiscover(result);
+  });
+
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const tag = chip.dataset.tag;
+      searchInput.value = tag;
+      const result = filterPostsByKeyword(tag);
+      renderDiscover(result);
+    });
+  });
+
+  renderFeed(allPosts);
+  renderDiscover(allPosts);
+</script>
+</body>
+</html>
