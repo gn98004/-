@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <title>小口袋 XiaoPocket - Demo V1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft JhengHei", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+      font-size: 16px;
+    }
+    img {
+      max-width: 100%;
+      display: block;
+    }
+    button {
+      font-family: inherit;
+    }
+
+    /* App 容器 */
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    /* 頂部列 */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 52px;
+      padding: 0 16px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+    .top-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .top-right {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    /* 內容區域 */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      background: #f3f4f6;
+      padding-bottom: 56px;
+    }
+
+    .page {
+      display: none;
+      padding: 8px 12px 16px;
+    }
+    .page.active {
+      display: block;
+    }
+
+    /* 底部導航 */
+    .tab-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 20;
+      display: flex;
+      height: 56px;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #6b7280;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tab-item span.icon {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+    .tab-item.active {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    /* 共用卡片 */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 8px 0;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.03);
+    }
+
+    /* 首頁貼文卡片 */
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .post-user {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .post-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .post-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 4px 0 6px;
+    }
+    .post-text {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    .post-image {
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      background: #e5e7eb;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .post-actions-left,
+    .post-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    /* 探索頁 */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      flex: 1;
+      padding-left: 6px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fef2f2;
+      color: #b91c1c;
+      cursor: pointer;
+    }
+    .chip.hot {
+      background: #fee2e2;
+      font-weight: 600;
+    }
+
+    /* 發文頁 */
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-label {
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #374151;
+      font-weight: 500;
+    }
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.15);
+    }
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .upload-box {
+      border-radius: 10px;
+      border: 1px dashed #d1d5db;
+      padding: 10px;
+      background: #f9fafb;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      cursor: pointer;
+      position: relative;
+    }
+    .upload-box input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .upload-preview {
+      margin-top: 8px;
+      border-radius: 10px;
+      overflow: hidden;
+      display: none;
+    }
+    .btn-primary {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 0;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn-primary:active {
+      opacity: 0.9;
+    }
+    .helper-text {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* 個人頁 */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .profile-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 26px;
+    }
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .profile-meta {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .profile-stats {
+      display: flex;
+      gap: 18px;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .stat-label {
+      color: #9ca3af;
+    }
+    .stat-value {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 10px 0 4px;
+    }
+    .empty-hint {
+      font-size: 12px;
+      color: #9ca3af;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    /* 小提示條 */
+    .hint-banner {
+      font-size: 11px;
+      color: #6b7280;
+      background: #fff7ed;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    .hint-banner span {
+      color: #f97316;
+      font-weight: 600;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        background: radial-gradient(circle at top, #fee2e2, #e5e7eb 45%, #f3f4f6);
+      }
+      .app-shell {
+        margin-top: 16px;
+        margin-bottom: 16px;
+        border-radius: 20px;
+        box-shadow: 0 18px 55px rgba(15,23,42,0.18);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div>
+      <div class="top-title">小口袋</div>
+      <div class="top-sub">XiaoPocket Demo</div>
+    </div>
+    <div class="top-right">Beta · 前端展示</div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- 首頁 -->
+    <section id="page-home" class="page active">
+      <div class="hint-banner">
+        這是 <span>小口袋</span> 的前端 Demo。所有貼文都暫存於瀏覽器，不連線後端、不包含電商，只展示基本的內容瀏覽與發佈流程。
+      </div>
+
+      <div id="feed-list"></div>
+    </section>
+
+    <!-- 探索 -->
+    <section id="page-discover" class="page">
+      <div class="search-bar">
+        <span style="font-size:16px;">🔍</span>
+        <input id="search-input" placeholder="搜尋筆記、主題或標籤…" />
+      </div>
+
+      <div class="chip-row">
+        <div class="chip hot" data-tag="美食"># 美食日常</div>
+        <div class="chip" data-tag="旅遊"># 週末小旅行</div>
+        <div class="chip" data-tag="穿搭"># 今日穿搭</div>
+        <div class="chip" data-tag="3C"># 3C 開箱</div>
+        <div class="chip" data-tag="生活"># 生活碎片</div>
+      </div>
+
+      <div class="section-title">猜你想看</div>
+      <div id="discover-list"></div>
+    </section>
+
+    <!-- 發佈 -->
+    <section id="page-post" class="page">
+      <div class="card">
+        <div class="form-group">
+          <div class="form-label">標題</div>
+          <input id="post-title" class="form-input" placeholder="今天的小發現…" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">內容</div>
+          <textarea id="post-content" class="form-textarea" placeholder="分享你的心得、故事或小筆記…"></textarea>
+          <div class="helper-text">文字將會以卡片方式顯示在首頁，方便快速刷內容。</div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">標籤（以逗號分隔）</div>
+          <input id="post-tags" class="form-input" placeholder="例如：美食, 旅遊, 今日穿搭" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">封面圖片</div>
+          <label class="upload-box">
+            點擊上傳一張圖片作為封面
+            <input id="post-image" type="file" accept="image/*" />
+            <div class="upload-preview">
+              <img id="post-image-preview" alt="預覽圖片" />
+            </div>
+          </label>
+          <div class="helper-text">目前為前端示範，圖片將以 base64 暫存在瀏覽器記憶體中。</div>
+        </div>
+        <button id="post-submit" class="btn-primary">發佈到小口袋</button>
+      </div>
+    </section>
+
+    <!-- 通知 -->
+    <section id="page-notify" class="page">
+      <div class="card">
+        <div class="section-title">系統提醒</div>
+        <div class="empty-hint">
+          目前尚未接上後端，這裡暫時只作為視覺展示。<br/>
+          未來可放入：有人按讚、留言、追蹤你、小口袋活動推播等。
+        </div>
+      </div>
+    </section>
+
+    <!-- 我的 -->
+    <section id="page-profile" class="page">
+      <div class="card">
+        <div class="profile-header">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name">Demo 使用者</div>
+            <div class="profile-meta">暫時使用假資料 · 未接會員系統</div>
+            <div class="profile-stats">
+              <div>
+                <div class="stat-label">我的筆記</div>
+                <div class="stat-value" id="stat-post-count">0</div>
+              </div>
+              <div>
+                <div class="stat-label">收藏</div>
+                <div class="stat-value">0</div>
+              </div>
+              <div>
+                <div class="stat-label">追蹤中</div>
+                <div class="stat-value">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hint-banner">
+          未來可以在這裡接：登入/註冊、編輯個人資料、管理草稿、設定通知偏好…目前只展示「我的筆記」列表。
+        </div>
+      </div>
+
+      <div class="section-title">我的筆記</div>
+      <div id="my-post-list"></div>
+      <div id="my-post-empty" class="empty-hint">尚未發佈任何筆記，先去「＋發佈」分享一則吧！</div>
+    </section>
+  </main>
+
+  <!-- Bottom Tabs -->
+  <nav class="tab-bar">
+    <div class="tab-item active" data-target="home">
+      <span class="icon">🏠</span>
+      <span>首頁</span>
+    </div>
+    <div class="tab-item" data-target="discover">
+      <span class="icon">🔎</span>
+      <span>探索</span>
+    </div>
+    <div class="tab-item" data-target="post">
+      <span class="icon">➕</span>
+      <span>發佈</span>
+    </div>
+    <div class="tab-item" data-target="notify">
+      <span class="icon">🔔</span>
+      <span>通知</span>
+    </div>
+    <div class="tab-item" data-target="profile">
+      <span class="icon">👤</span>
+      <span>我的</span>
+    </div>
+  </nav>
+</div>
+
+<script>
+  // ===== Demo 資料結構 =====
+  const demoPosts = [
+    {
+      id: "demo-1",
+      user: "海邊散步的人",
+      avatar: "海",
+      title: "週末一個人去海邊散散心",
+      content: "沒有特別的安排，就帶著耳機、相機和一本書，沿著海邊慢慢走。發現其實放空也是一種很重要的行程。",
+      tags: ["旅遊", "生活", "心情"],
+      image: "https://images.pexels.com/photos/2404370/pexels-photo-2404370.jpeg?auto=compress&cs=tinysrgb&w=800",
+      likes: 23,
+      comments: 5,
+      time: "2 小時前"
+    },
+    {
+      id: "demo-2",
+      user: "下班想躺著",
+      avatar: "班",
+      title: "懶人也能做的超簡單一鍋料理",
+      content: "下班真的不想開火太久，就把蔬菜、菇類、雞肉全部丟進鍋裡，調味後一起煮。洗碗也只要洗一鍋，超爽。",
+      tags: ["美食", "懶人料理"],
+      image: "https://images.pexels.com/photos/5718025/pexels-photo-5718025.jpeg?auto=compress&cs=tinysrgb&w=800",
+      likes: 41,
+      comments: 12,
+      time: "昨天"
+    },
+    {
+      id: "demo-3",
+      user: "街口穿搭控",
+      avatar: "搭",
+      title: "今天試著換了一種顏色的穿搭",
+      content: "一直都很害怕穿亮色，但今天硬著頭皮買了一件亮橘色外套。結果意外的好看，走在路上心情都變好了。",
+      tags: ["穿搭", "生活"],
+      image: "https://images.pexels.com/photos/7671166/pexels-photo-7671166.jpeg?auto=compress&cs=tinysrgb&w=800",
+      likes: 67,
+      comments: 19,
+      time: "3 天前"
+    }
+  ];
+
+  let userPosts = []; // 使用者自己發的
+  let allPosts = [...demoPosts];
+
+  // ===== DOM Reference =====
+  const pages = {
+    home: document.getElementById("page-home"),
+    discover: document.getElementById("page-discover"),
+    post: document.getElementById("page-post"),
+    notify: document.getElementById("page-notify"),
+    profile: document.getElementById("page-profile")
+  };
+
+  const tabItems = document.querySelectorAll(".tab-item");
+  const feedList = document.getElementById("feed-list");
+  const discoverList = document.getElementById("discover-list");
+  const myPostList = document.getElementById("my-post-list");
+  const myPostEmpty = document.getElementById("my-post-empty");
+  const statPostCount = document.getElementById("stat-post-count");
+
+  const postTitleInput = document.getElementById("post-title");
+  const postContentInput = document.getElementById("post-content");
+  const postTagsInput = document.getElementById("post-tags");
+  const postImageInput = document.getElementById("post-image");
+  const postImagePreview = document.getElementById("post-image-preview");
+  const uploadPreviewWrapper = document.querySelector(".upload-preview");
+  const postSubmitBtn = document.getElementById("post-submit");
+  const searchInput = document.getElementById("search-input");
+
+  // ===== Tab 切換 =====
+  function switchPage(target) {
+    Object.values(pages).forEach(p => p.classList.remove("active"));
+    tabItems.forEach(t => t.classList.remove("active"));
+
+    const pageId = "page-" + target;
+    const page = pages[target];
+    if (page) page.classList.add("active");
+
+    tabItems.forEach(t => {
+      if (t.dataset.target === target) {
+        t.classList.add("active");
+      }
+    });
+
+    if (target === "home") {
+      renderFeed(allPosts);
+    } else if (target === "discover") {
+      renderDiscover(allPosts);
+    } else if (target === "profile") {
+      renderMyPosts();
+    }
+  }
+
+  tabItems.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.target;
+      switchPage(target);
+    });
+  });
+
+  // ===== 渲染貼文卡片 =====
+  function createPostCard(post) {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const tagsHtml = (post.tags || [])
+      .map(tag => `<span class="tag"># ${tag}</span>`)
+      .join("");
+
+    const imageHtml = post.image
+      ? `<div class="post-image"><img src="${post.image}" alt="post image" loading="lazy"></div>`
+      : "";
+
+    card.innerHTML = `
+      <div class="post-header">
+        <div class="avatar">${(post.avatar || "口").slice(0, 1)}</div>
+        <div>
+          <div class="post-user">${post.user || "小口袋用戶"}</div>
+          <div class="post-meta">${post.time || "剛剛 · 來自 小口袋 Demo"}</div>
+        </div>
+      </div>
+      <div class="post-title">${post.title || "未命名標題"}</div>
+      <div class="post-text">${post.content || ""}</div>
+      ${imageHtml}
+      <div class="post-tags">${tagsHtml}</div>
+      <div class="post-actions">
+        <div class="post-actions-left">
+          <div class="icon-btn">❤️ <span>${post.likes ?? 0}</span></div>
+          <div class="icon-btn">💬 <span>${post.comments ?? 0}</span></div>
+        </div>
+        <div class="post-actions-right">
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+    `;
+    return card;
+  }
+
+  function renderFeed(posts) {
+    feedList.innerHTML = "";
+    if (!posts.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-hint";
+      empty.innerHTML = "目前還沒有內容，先去「＋發佈」分享第一則小口袋筆記吧！";
+      feedList.appendChild(empty);
+      return;
+    }
+    posts.forEach(p => {
+      const card = createPostCard(p);
+      feedList.appendChild(card);
+    });
+  }
+
+  function renderDiscover(posts) {
+    discoverList.innerHTML = "";
+    if (!posts.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-hint";
+      empty.innerHTML = "暫時沒有找到相關內容，可以試試其他關鍵字或標籤。";
+      discoverList.appendChild(empty);
+      return;
+    }
+    posts.forEach(p => {
+      const card = createPostCard(p);
+      discoverList.appendChild(card);
+    });
+  }
+
+  function renderMyPosts() {
+    myPostList.innerHTML = "";
+    if (!userPosts.length) {
+      myPostEmpty.style.display = "block";
+    } else {
+      myPostEmpty.style.display = "none";
+      userPosts.slice().reverse().forEach(p => {
+        const card = createPostCard(p);
+        myPostList.appendChild(card);
+      });
+    }
+    statPostCount.textContent = userPosts.length.toString();
+  }
+
+  // ===== 圖片預覽 =====
+  let selectedImageDataUrl = "";
+  postImageInput.addEventListener("change", function (e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+      selectedImageDataUrl = "";
+      uploadPreviewWrapper.style.display = "none";
+      postImagePreview.src = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (evt) {
+      selectedImageDataUrl = evt.target.result;
+      postImagePreview.src = selectedImageDataUrl;
+      uploadPreviewWrapper.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ===== 發佈貼文 =====
+  postSubmitBtn.addEventListener("click", function () {
+    const title = postTitleInput.value.trim();
+    const content = postContentInput.value.trim();
+    const rawTags = postTagsInput.value.trim();
+
+    if (!title && !content) {
+      alert("至少輸入標題或內容再發佈喔。");
+      return;
+    }
+
+    const tags = rawTags
+      ? rawTags.split(",").map(t => t.trim()).filter(Boolean)
+      : [];
+
+    const newPost = {
+      id: "user-" + Date.now(),
+      user: "Demo 使用者",
+      avatar: "D",
+      title: title || "未命名標題",
+      content,
+      tags,
+      image: selectedImageDataUrl || "",
+      likes: 0,
+      comments: 0,
+      time: "剛剛"
+    };
+
+    userPosts.push(newPost);
+    allPosts.unshift(newPost);
+
+    postTitleInput.value = "";
+    postContentInput.value = "";
+    postTagsInput.value = "";
+    postImageInput.value = "";
+    selectedImageDataUrl = "";
+    uploadPreviewWrapper.style.display = "none";
+
+    alert("已發佈到小口袋（僅本機 Demo）");
+
+    renderFeed(allPosts);
+    renderMyPosts();
+    switchPage("home");
+  });
+
+  // ===== 探索搜尋 =====
+  function filterPostsByKeyword(keyword) {
+    if (!keyword) return allPosts;
+    const lower = keyword.toLowerCase();
+    return allPosts.filter(p => {
+      const text = (p.title + " " + p.content + " " + (p.tags || []).join(" ")).toLowerCase();
+      return text.includes(lower);
+    });
+  }
+
+  searchInput.addEventListener("input", function (e) {
+    const keyword = e.target.value.trim();
+    const result = filterPostsByKeyword(keyword);
+    renderDiscover(result);
+  });
+
+  // Tag chips 點擊搜尋
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const tag = chip.dataset.tag;
+      searchInput.value = tag;
+      const result = filterPostsByKeyword(tag);
+      renderDiscover(result);
+    });
+  });
+
+  // ===== 初始化 =====
+  renderFeed(allPosts);
+  renderDiscover(allPosts);
+</script>
+</body>
+</html>
